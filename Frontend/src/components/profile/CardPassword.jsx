@@ -1,0 +1,86 @@
+import {useForm} from 'react-hook-form'
+import storeProfile from '../../context/storeProfile'
+import storeAuth from '../../context/storeAuth'
+import {ToastContainer, toast} from 'react-toastify'
+
+const CardPassword = () => {
+    const {register, handleSubmit, formState: {errors}} = useForm()
+    const {user, updatePasswordProfile} = storeProfile()
+    const {clearToken} = storeAuth()
+    // en cada input colocar {...register('nombreDelCampo',{validaciones})}
+
+    const updatePassword = async (dataForm) => { 
+        const url = `${import.meta.env.VITE_BACKEND_URL}/v1/auth/update-password/${user._id}`
+        const succes = await updatePasswordProfile(url, dataForm)
+        if (succes){
+            toast.success("Contraseña actualizada correctamente, por favor inicia sesión de nuevo")
+            setTimeout(() => {
+                clearToken()
+            }, 2000);
+        }   
+    }
+
+    return (
+        <>
+        <ToastContainer />
+            <div className="bg-[#FAF7F2] border border-[#E0D9D1] p-6 rounded-xl mt-8 shadow-md">
+
+                <h1 className="font-black text-2xl text-[#6B4F3A] mb-4">
+                    Actualizar contraseña
+                </h1>
+                <hr className="mb-4 border-[#E0D9D1]" />
+
+                <form onSubmit={handleSubmit(updatePassword)}>
+
+                    <div>
+                        <label className="mb-2 block text-sm font-semibold text-[#6B4F3A]">
+                            Contraseña actual
+                        </label>
+                        <input 
+                            type="password"
+                            placeholder="Ingresa tu contraseña actual"
+                            className="block w-full rounded-md border border-[#DBCDBF] bg-white py-2 px-3 text-[#7A6A58] mb-5"
+                            {...register('passwordActual', { required: "Por favor ingresa tu contraseña actual" })}
+                        />
+                        {errors.passwordActual && <p className="text-red-500 text-sm mb-4">La contraseña actual es obligatoria</p>}
+                    </div>
+
+                    <div>
+                        <label className="mb-2 block text-sm font-semibold text-[#6B4F3A]">
+                            Nueva contraseña
+                        </label>
+                        <input 
+                            type="password"
+                            placeholder="Ingresa la nueva contraseña"
+                            className="block w-full rounded-md border border-[#DBCDBF] bg-white py-2 px-3 text-[#7A6A58] mb-5"
+                            {...register('passwordNuevo', {
+                                required: "Por favor ingresa una nueva contraseña",
+                                minLength: {
+                                value: 8,
+                                message: "Debe tener al menos 8 caracteres",
+                                },
+                                pattern: {
+                                value:
+                                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/,
+                                message:
+                                    "Debe incluir mayúscula, minúscula y número",
+                                },
+                            })}
+                        />
+                        {errors.passwordNuevo && <p className="text-red-500 text-sm mb-4">La nueva contraseña es obligatoria</p>}
+                    </div>
+
+                    <input
+                        type="submit"
+                        className="bg-[#6B4F3A] text-white w-full p-2 mt-2 uppercase font-bold rounded-lg hover:bg-[#8C6F55] cursor-pointer transition-all"
+                        value="Cambiar"
+                    />
+
+                </form>
+
+            </div>
+        </>
+    )
+}
+
+export default CardPassword

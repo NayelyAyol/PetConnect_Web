@@ -1,0 +1,84 @@
+import { BrowserRouter, Route, Routes } from 'react-router'
+import { Home } from './pages/Home'
+import Login from './pages/Login'
+import { Register } from './pages/Register'
+import { Forgot } from './pages/Forgot'
+import { Confirm } from './pages/Confirm'
+import { NotFound } from './pages/NotFound'
+import Dashboard from './layout/Dashboard'
+import Profile from './pages/Profile'
+import Avatars from './pages/Avatars'
+import List from './pages/List'
+import Details from './pages/Details'
+import Create from './pages/Create'
+import Update from './pages/Update'
+import Chat from './pages/Chat'
+import Reset from './pages/Reset'
+import Panel from './pages/Panel'
+
+import Pet from './pages/Pet'
+
+import PublicRoute from './routes/PublicRoute'
+import ProtectedRoute from './routes/ProtectedRoute'
+
+import { useEffect } from 'react'
+import storeProfile from './context/storeProfile'
+import storeAuth from './context/storeAuth'
+import PetDetail from './components/pets/list/PetDetail'
+
+function App() {
+
+  const {profile} = storeProfile();
+  const {token} = storeAuth();
+
+  useEffect(() => {
+    if(token){
+      profile();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
+  return (
+    <>
+    <BrowserRouter>
+      <Routes>
+        {/* Englobar rutas públicas */}
+        <Route element={<PublicRoute/>}>
+        
+          <Route index element={<Home/>}/>
+          <Route path='login' element={<Login/>}/>
+          <Route path='register' element={<Register/>}/>
+          <Route path='forgot/:id' element={<Forgot/>}/>
+          <Route path='confirm-email/:token' element={<Confirm/>}/>
+          <Route path='restore-password/:token' element={<Reset/>}/>
+          <Route path='*' element={<NotFound />} />
+        </Route>
+
+        {/* Englobar rutas privadas */}
+        <Route path='/dashboard/*' element={
+          <ProtectedRoute>
+            <Routes>
+              <Route element={<Dashboard/>}>
+                <Route index element={<Panel/>}/>
+                <Route path='profile' element={<Profile/>}/>
+                <Route path='list' element={<List/>}/>
+                <Route path='details/:id' element={<Details/>}/>
+                <Route path='create' element={<Create/>}/>
+                <Route path='update/:id' element={<Update/>}/>
+                <Route path='chat' element={<Chat/>}/>
+                <Route path='avatars' element={<Avatars/>}/>
+                <Route path='pet' element={<Pet/>}/>
+                <Route path='pet-detail/:id' element={<PetDetail/>}/>
+              </Route>
+            </Routes>
+          </ProtectedRoute>
+        }/>
+
+
+      </Routes>
+    </BrowserRouter>
+    </>
+  )
+}
+
+export default App
